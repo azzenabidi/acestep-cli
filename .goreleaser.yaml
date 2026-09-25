@@ -24,9 +24,10 @@ builds:
       - amd64
       - arm64
     goarm: []
+    # Apple Silicon is the dominant macOS target, so darwin/arm64 ships and
+    # darwin/amd64 is kept only for the remaining Intel machines. Windows on
+    # ARM is still marginal and is skipped.
     ignore:
-      - goos: darwin
-        goarch: arm64
       - goos: windows
         goarch: arm64
     flags:
@@ -44,10 +45,12 @@ archives:
       - acestep
     name_template: >-
       {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
-    format: tar.gz
+    formats:
+      - tar.gz
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+          - zip
     files:
       - LICENSE
       - README.md

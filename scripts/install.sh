@@ -45,23 +45,25 @@ run() {
 
 # --- platform detection -----------------------------------------------------
 
+# detect_platform echoes "<goos>_<goarch>" using the same names Go and
+# GoReleaser use, because those are what the release assets are named after:
+# acestep_<version>_<goos>_<goarch>.tar.gz
 detect_platform() {
   os=$(uname -s | tr '[:upper:]' '[:lower:]')
   arch=$(uname -m)
 
   case "$os" in
-    linux)  os=Linux ;;
-    darwin) os=Darwin ;;
-    *)      die "unsupported operating system: $os" ;;
+    linux)  os=linux ;;
+    darwin) os=darwin ;;
+    *)      die "unsupported operating system: $os (Linux and macOS are supported)" ;;
   esac
 
   case "$arch" in
-    x86_64|amd64)  arch=x86_64 ;;
+    x86_64|amd64)  arch=amd64 ;;
     arm64|aarch64) arch=arm64 ;;
     *)             die "unsupported architecture: $arch" ;;
   esac
 
-  # GoReleaser only publishes amd64/arm64.
   printf '%s_%s' "$os" "$arch"
 }
 
@@ -88,8 +90,6 @@ choose_dest() {
 
 main() {
   require curl
-  require tar
-  [ "$(uname -s)" = "Darwin" ] || command -v unzip >/dev/null 2>&1 || true
 
   version="${ACESTEP_VERSION:-latest}"
   platform=$(detect_platform)
@@ -118,11 +118,16 @@ main() {
 
   asset="acestep_${tag#v}_${platform}"
   case "$platform" in
-    Linux_x86_64|Linux_arm64|Darwin_x86_64) ext=tar.gz ;;
-    Darwin_arm64)                        ext=tar.gz ;;
-    *)                                   ext=zip ;;
+    windows_*) ext=zip ;;
+    *)         ext=tar.gz ;;
   esac
   url="$RELEASES/download/$tag/${asset}.${ext}"
+
+  # Only require the extractor this platform actually needs.
+  case "$ext" in
+    tar.gz) require tar ;;
+    zip)    require unzip ;;
+  esac
 
   tmp=$(mktemp -d 2>/dev/null || mktemp -d -t acestep)
   # shellcheck disable=SC2064
@@ -177,7 +182,7 @@ main() {
   printf '    %s3.%s generate a track:\n       acestep generate -p "lofi beats" -d 30\n' "$BOLD" "$RESET"
   printf '\n'
   info "pick a bundle that fits your hardware; see docs/HARDWARE_GUIDE.md"
-  info "the engine is not installed by this script -- `acestep setup` builds it"
+  info "this script installs the CLI only; 'acestep setup' builds the engine"
 }
 
 main "$@"

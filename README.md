@@ -113,9 +113,9 @@ Download the archive for your platform from
 binary onto your `PATH`:
 
 ```sh
-# Linux x86_64
+# Linux amd64
 curl -fsSL -o acestep.tar.gz \
-  https://github.com/azzenabidi/acestep-cli/releases/download/v1.0.0/acestep_1.0.0_Linux_x86_64.tar.gz
+  https://github.com/azzenabidi/acestep-cli/releases/download/v1.0.0/acestep_1.0.0_linux_amd64.tar.gz
 tar xzf acestep.tar.gz acestep
 sudo install -m755 acestep /usr/local/bin/acestep
 ```
@@ -127,9 +127,9 @@ checksum and handles `PATH` for you:
 curl -fsSL https://raw.githubusercontent.com/azzenabidi/acestep-cli/main/scripts/install.sh | sh
 ```
 
-Archive names are `acestep_<version>_<Os>_<Arch>`, with `Os` in `Linux`,
-`Darwin` or `Windows` and `Arch` in `x86_64` or `arm64`. Substitute the exact
-tag from the release page.
+Archive names are `acestep_<version>_<goos>_<goarch>`, using Go's names —
+`linux`, `darwin` or `windows`, and `amd64` or `arm64`. Linux and macOS ship
+`tar.gz`, Windows ships `zip`. Substitute the exact tag from the release page.
 
 ### From source
 
