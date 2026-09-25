@@ -1,0 +1,83 @@
+# GoReleaser configuration. `make cross` builds the same target list without
+# GoReleaser, so a release is never blocked on having it installed.
+version: 2
+
+project_name: acestep
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: acestep
+    main: ./cmd
+    binary: acestep
+    # The CLI only shells out to external binaries and reads the filesystem,
+    # so CGO can be off and the result is a single static file.
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    goarm: []
+    ignore:
+      - goos: darwin
+        goarch: arm64
+      - goos: windows
+        goarch: arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.FullCommit}}
+      - -X main.date={{.Date}}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: acestep
+    ids:
+      - acestep
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+      - docs/HARDWARE_GUIDE.md
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+release:
+  draft: false
+  prerelease: auto
+  footer: |
+    ## Installation
+
+    ```sh
+    go install github.com/azzenabidi/acestep-cli/cmd@latest
+    ```
+
+    Then run `acestep setup` to build the engine and fetch the models.
+
+    Model weights are **not** included in the release artefacts. They are
+    several gigabytes and are fetched from Hugging Face by `acestep setup`.

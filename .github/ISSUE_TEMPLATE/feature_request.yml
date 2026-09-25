@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest an improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: |
+        What are you trying to do that is awkward or impossible today?
+        Describing the problem is more useful than describing a solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What should the CLI do differently?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Workarounds you are using today, if any.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the tool?
+      options:
+        - generate
+        - setup
+        - models
+        - interactive TUI
+        - configuration
+        - documentation
+        - something else
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-checks
+      options:
+        - label: I searched the existing issues and this is not a duplicate
+          required: true
+        - label: This does not require changes to the upstream acestep.cpp engine

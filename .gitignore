@@ -1,0 +1,46 @@
+# Compiled CLI
+# The directory is kept in the repo via .gitkeep, so ignore its contents
+# rather than the directory itself; git cannot un-ignore a file inside a
+# directory that is excluded wholesale.
+/bin/*
+/acestep
+/dist/
+
+# Engine sources and build trees
+.build/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Model weights: multi-gigabyte, fetched with `acestep setup`
+/models/*
+/adapters/
+
+# Rendered audio
+/outputs/*
+/work/
+
+# Config written at runtime
+config.yaml
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Go
+*.test
+*.out
+coverage.*
+
+# Keep the runtime directory structure in the repo even though its contents
+# are ignored.
+!/bin/.gitkeep
+!/models/.gitkeep
+!/outputs/.gitkeep

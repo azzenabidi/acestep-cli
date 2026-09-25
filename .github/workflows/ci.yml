@@ -1,0 +1,108 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l ./cmd ./pkg)
+          if [ -n "$unformatted" ]; then
+            echo "these files need gofmt:"
+            echo "$unformatted"
+            exit 1
+          fi
+      - name: go vet
+        run: go vet ./...
+      - name: go mod tidy is clean
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Test
+        run: go test -race -count=1 ./...
+
+  build:
+    name: build (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+          - darwin/amd64
+          - darwin/arm64
+          - windows/amd64
+          - windows/arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build
+        env:
+          GOOS: ${{ matrix.platform }}
+          GOARCH: ${{ matrix.platform }}
+        run: |
+          goos="${GOOS}"
+          goarch="${matrix.platform##*/}"
+          out="acestep_${goos}_${goarch}"
+          [ "$goos" = "windows" ] && out="$out.exe"
+          CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o "$out" ./cmd
+          ls -la "$out"
+
+  # The engine is a C++ project, so the Go build must not depend on a C
+  # toolchain. Verify the binary is genuinely static and dependency-free.
+  static:
+    name: static binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o acestep ./cmd
+      - name: Check linkage
+        run: |
+          if ldd ./acestep 2>&1 | grep -v "not a dynamic executable"; then
+            echo "binary is dynamically linked; it would fail on a bare target"
+            exit 1
+          fi
+      - name: Smoke test
+        run: |
+          ./acestep version --short
+          ./acestep generate --help > /dev/null
+          ./acestep setup --list-presets > /dev/null
+          ./acestep models presets > /dev/null
+          # doctor is expected to fail on a runner with no models installed.
+          ./acestep doctor > /dev/null 2>&1 || true

@@ -1,0 +1,110 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this.
+
+        **Most generation failures are environment problems, not code bugs.**
+        Run `acestep doctor` first and paste its output here — it usually
+        identifies the cause immediately.
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: acestep doctor output
+      description: Output of `acestep doctor`
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands you ran, in order.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: Exact acestep command
+      placeholder: acestep generate -p "lofi synthwave" -d 30
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: acestep version
+      description: Output of `acestep version`
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Linux x86_64
+        - Linux arm64
+        - macOS Apple Silicon
+        - macOS Intel
+        - Windows
+    validations:
+      required: true
+
+  - type: dropdown
+    id: engine-build
+    attributes:
+      label: How was acestep.cpp built?
+      description: Recorded by `acestep setup`
+      options:
+        - CPU only
+        - CUDA (NVIDIA)
+        - Vulkan (AMD/Intel)
+        - ROCm
+        - All backends
+        - Prebuilt binaries
+    validations:
+      required: true
+
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware
+      description: |
+        GPU model and VRAM, or CPU model and core count if running on CPU.
+        Also total system RAM.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: engine-log
+    attributes:
+      label: Engine log
+      description: Output of the failing command with `-v` / `--verbose` added
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-checks
+      options:
+        - label: I searched the existing issues and this is not a duplicate
+          required: true
+        - label: I read docs/HARDWARE_GUIDE.md and my hardware is supported
