@@ -10,7 +10,7 @@ before:
 
 builds:
   - id: acestep
-    main: ./cmd
+    main: ./cmd/acestep
     binary: acestep
     # The CLI only shells out to external binaries and reads the filesystem,
     # so CGO can be off and the result is a single static file.
@@ -77,7 +77,7 @@ release:
     ## Installation
 
     ```sh
-    go install github.com/azzenabidi/acestep-cli/cmd@latest
+    go install github.com/azzenabidi/acestep-cli/cmd/acestep@latest
     ```
 
     Then run `acestep setup` to build the engine and fetch the models.

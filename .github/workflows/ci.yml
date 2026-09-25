@@ -84,7 +84,7 @@ jobs:
           case "$GOOS" in
             windows) out="$out.exe" ;;
           esac
-          CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o "$out" ./cmd
+          CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o "$out" ./cmd/acestep
           ls -la "$out"
 
   # The engine is a C++ project, so the Go build must not depend on a C
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - run: CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o acestep ./cmd
+      - run: CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o acestep ./cmd/acestep
       - name: Check linkage
         run: |
           if ldd ./acestep 2>&1 | grep -v "not a dynamic executable"; then

@@ -100,7 +100,7 @@ VAE. Pick the bundle that fits your machine.
 ### With Go
 
 ```sh
-go install github.com/azzenabidi/acestep-cli/cmd@latest
+go install github.com/azzenabidi/acestep-cli/cmd/acestep@latest
 ```
 
 This puts `acestep` in `$(go env GOPATH)/bin`. Make sure that directory is on

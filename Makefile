@@ -22,11 +22,11 @@ help: ## Show this help
 
 build: ## Build the acestep binary into bin/
 	@mkdir -p $(BUILD_DIR)
-	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY) ./cmd
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY) ./cmd/acestep
 	@echo "built $(BUILD_DIR)/$(BINARY) ($(VERSION))"
 
 install: build ## Install acestep into GOBIN
-	$(GO) install -trimpath -ldflags "$(LDFLAGS)" ./cmd
+	$(GO) install -trimpath -ldflags "$(LDFLAGS)" ./cmd/acestep
 
 test: ## Run the unit tests
 	$(GO) test ./...
