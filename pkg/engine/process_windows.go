@@ -10,6 +10,13 @@ import (
 	"syscall"
 )
 
+// isExecutable always reports true. Windows has no execute permission bit:
+// a file with a recognised extension runs regardless of its mode, so
+// checking mode bits here would reject every binary on the platform.
+func isExecutable(_ os.FileInfo) bool {
+	return true
+}
+
 // setProcAttr gives the child its own console process group so Ctrl+C is not
 // delivered to it twice, and so CREATE_NEW_PROCESS_GROUP lets us terminate
 // the whole tree later.

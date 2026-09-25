@@ -174,7 +174,7 @@ func requireFile(path string, stage Stage) error {
 	if fi.IsDir() {
 		return &ErrMissingBinary{Stage: stage, Path: path}
 	}
-	if fi.Mode()&0o111 == 0 {
+	if !isExecutable(fi) {
 		return fmt.Errorf("engine: %s at %s is not executable (chmod +x)", stage, path)
 	}
 	return nil

@@ -9,6 +9,12 @@ import (
 	"syscall"
 )
 
+// isExecutable reports whether the file may be run directly. On Unix this is
+// the execute bit, which is the thing a user can actually get wrong.
+func isExecutable(fi os.FileInfo) bool {
+	return fi.Mode()&0o111 != 0
+}
+
 // setProcAttr puts the child in its own process group so the whole tree can be
 // signalled at once. Without this, Ctrl+C in the parent terminal never reaches
 // the C++ binary (it is not in the foreground group) and a cancelled run
