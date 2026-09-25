@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Tag to release
+        description: Tag to release, e.g. v0.1.0
         required: true
 
 permissions:
@@ -20,23 +20,48 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # GoReleaser needs the full history for the changelog, and the tag
+          # itself when this was triggered manually.
           fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
       - uses: actions/setup-go@v5
         with:
-            go-version-file: go.mod
-            cache: true
+          go-version-file: go.mod
+          cache: true
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
-          # The Makefile sets the version metadata; keep the two in step.
+          distribution: goreleaser
+          version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verify the release artefacts
-        if: success()
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
-      - name: Checksums
-        run: ls -la dist | head -20
+
+      # GoReleaser publishes to the GitHub release, not as a workflow
+      # artefact, so the published assets are verified through the API.
+      - name: Verify the published release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          echo "release: https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
+          gh release view "$TAG" --json isDraft,tagName,url \
+            --template '{{.tagName}} draft={{.isDraft}}{{"\n"}}{{.url}}{{"\n"}}'
+          count=$(gh release view "$TAG" --json assets --jq '.assets | length')
+          echo "assets: $count"
+          if [ "$count" -lt 6 ]; then
+            echo "expected at least 6 assets (5 archives + checksums.txt), got $count"
+            exit 1
+          fi
+          gh release view "$TAG" --json assets \
+            --jq '.assets[] | "  \(.name)  \(.size) bytes"'
+          if ! gh release view "$TAG" --json assets --jq '.assets[].name' | grep -qx 'checksums.txt'; then
+            echo "checksums.txt is missing; the installer cannot verify downloads"
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: ls -la dist 2>/dev/null || echo "no local dist directory"
