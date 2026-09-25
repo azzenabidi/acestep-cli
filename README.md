@@ -282,7 +282,7 @@ acestep -H /mnt/fast/acestep doctor
 | Installation root | `-H`, `--home` | `ACESTEP_HOME` | platform config dir |
 | Engine binaries | — | `ACESTEP_BIN_DIR` | `<root>/bin` |
 | Model directory | — | `ACESTEP_MODELS_DIR` | `<root>/models` |
-| Output directory | — | `ACESTEP_OUTPUT_DIR` | `<root>/outputs` |
+| Output directory | — | `ACESTEP_OUTPUT_DIR` | `~/Music/acestep` |
 | Default duration | `--duration` | `ACESTEP_GENERATE_DURATION` | `60` |
 | Default format | `--format` | `ACESTEP_GENERATE_OUTPUT_FORMAT` | `mp3` |
 | Model repository | `setup --models` | `ACESTEP_MODELS_REPO` | `Serveurperso/ACE-Step-1.5-GGUF` |
